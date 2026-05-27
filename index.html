@@ -663,7 +663,7 @@
 // 1) GitHub Pages 배포 후
 // 2) Google Apps Script로 웹 앱 만들고 (코드는 별도 안내)
 // 3) 아래 URL을 본인 것으로 교체
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBS43q8-iQpyrdVtGbsTIa6gXOQ6qCxjmnPFynly1qiWhAxBSC6fmLV9wdOllm4M7o/exec' ;
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydZ-X-PY6wzvpzBXsG6mO7ZwBGrCfxdWZf1lxWefbehrIgDGRKMFetp4loR-GioipQDg/exec';
 // 비워두면 자동 저장 안 됨 (응답 코드만 표시)
 
 // ============================================================
@@ -1565,7 +1565,8 @@ const SURVEY_COMMON = [
     help: '이 문항을 기준으로 뒤의 질문이 달라집니다.',
     options: [
       { value: 'experience', label: '실제 주식투자 또는 모의주식투자를 해본 적이 있다' },
-      { value: 'interest', label: '주식투자는 해본 적 없지만 관심은 있다' }
+      { value: 'interest', label: '주식투자는 해본 적 없지만 관심은 있다' },
+      { value: 'none', label: '주식투자를 해본 적도 없고 관심도 없다' }
     ]
   }
 ];
@@ -1609,9 +1610,9 @@ const SURVEY_BRANCH_A = [
 const SURVEY_BRANCH_B = [
   {
     id: 'b15_not_started_reason', section: 'Ⅲ. 선택 질문 B', number: '15', type: 'multi',
-    title: '아직 주식투자를 시작하지 않은 이유는 무엇인가요?',
-    help: '주식투자 경험은 없지만 관심은 있는 응답자용 · 복수 응답 가능',
-    options: ['경제 용어가 어려워서', '어떤 종목을 골라야 할지 몰라서', '주식 정보를 어디서 봐야 할지 몰라서', '손실이 두려워서', '아직 필요성을 못 느껴서', '모의투자부터 해보고 싶어서', '기타'],
+    title: '주식투자를 하지 않는 이유는 무엇인가요?',
+    help: '복수 응답 가능',
+    options: ['경제 용어가 어려워서', '어떤 종목을 골라야 할지 몰라서', '주식 정보를 어디서 봐야 할지 몰라서', '손실이 두려워서', '아직 필요성을 못 느껴서', '관심이 없어서', '모의투자부터 해보고 싶어서', '기타'],
     hasOther: true
   },
   {
@@ -1621,8 +1622,8 @@ const SURVEY_BRANCH_B = [
   },
   {
     id: 'b17_expected_influence', section: 'Ⅲ. 선택 질문 B', number: '17', type: 'single',
-    title: '주식투자를 시작한다면 가장 큰 영향을 받을 것 같은 요인은 무엇인가요?',
-    options: ['부모님 또는 가족의 조언', '친구 또는 또래의 추천', '유튜브, 쇼츠, 릴스 등 SNS 콘텐츠', '경제 뉴스나 기사', '학교 수업 / 경제 교육', '주식 관련 대회나 모의투자', '돈을 벌고 싶다는 생각', '기타'],
+    title: '만약 주식투자를 시작한다면 가장 큰 영향을 받을 것 같은 요인은 무엇인가요?',
+    options: ['부모님 또는 가족의 조언', '친구 또는 또래의 추천', '유튜브, 쇼츠, 릴스 등 SNS 콘텐츠', '경제 뉴스나 기사', '학교 수업 / 경제 교육', '주식 관련 대회나 모의투자', '돈을 벌고 싶다는 생각', '시작할 생각이 전혀 없다', '기타'],
     hasOther: true
   }
 ];
@@ -1665,7 +1666,7 @@ function renderSurvey() {
     ? '<h1 class="title">설문조사</h1><p class="subtitle">모든 문항에 응답해주세요</p>'
     : (state.surveyBranch === 'experience' 
         ? '<h1 class="title">투자 경험자 추가 질문</h1>'
-        : '<h1 class="title">관심 응답자 추가 질문</h1>');
+        : '<h1 class="title">비경험자 추가 질문</h1>');
 
   content.innerHTML = `
     ${headerText}
@@ -1769,29 +1770,25 @@ function renderSurveySubmit() {
     <div class="survey-submit-card">
       <div class="emoji">✅</div>
       <h2>설문이 완료되었어요</h2>
-      <p>아래 추첨 정보를 입력하고 제출해주세요</p>
+      <p>마지막으로 확인하고 제출해주세요</p>
     </div>
     
     <div style="background: linear-gradient(135deg, #fff8e1 0%, #ffefd5 100%); border-radius: 16px; padding: 18px; margin-bottom: 16px; border-left: 4px solid var(--yellow);">
       <div style="font-size: 14px; font-weight: 700; color: #c08400; margin-bottom: 6px;">
-        🎁 상품 추첨 응모
+        🎁 상품 추첨 응모 (선택)
       </div>
       <div style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
-        추첨을 통해 간식을 드립니다.<br>
+        추첨 응모를 원하시면 연락처를 입력해주세요.<br>
         개인정보는 추첨 후 즉시 폐기됩니다.
       </div>
     </div>
     
     <div class="form-row">
-      <label>이름</label>
-      <input type="text" id="prize-name" placeholder="예: 김선유" />
-    </div>
-    <div class="form-row">
-      <label>인스타그램 ID 또는 전화번호</label>
+      <label>인스타그램 ID 또는 전화번호 <span style="color:var(--text-dim);font-weight:400;">(선택)</span></label>
       <input type="text" id="prize-contact" placeholder="@instagram_id 또는 010-1234-5678" />
     </div>
     <div style="font-size:11px;color:var(--text-dim);margin-top:-4px;margin-bottom:16px;">
-      ※ 추첨에 응모하지 않으려면 빈 칸으로 두세요
+      ※ 추첨에 응모하지 않으려면 빈 칸으로 두고 제출하세요
     </div>
     
     <div id="submit-status" class="submit-status" style="margin-top:16px;"></div>
@@ -1833,14 +1830,12 @@ function buildSubmissionData() {
     if (ans.other) flatAnswers[`${key}_other`] = ans.other;
   });
 
-  // 추첨용 정보 수집
-  const prizeName = document.getElementById('prize-name')?.value.trim() || '';
+  // 추첨용 정보 수집 (선택)
   const prizeContact = document.getElementById('prize-contact')?.value.trim() || '';
 
   return {
     timestamp: new Date().toISOString(),
     surveyBranch: state.surveyBranch || 'none',
-    prizeName: prizeName,
     prizeContact: prizeContact,
     ...flatAnswers,
     initialStock: state.initialStock,
