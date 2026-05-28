@@ -828,7 +828,8 @@ let state = {
   startTime: Date.now(),
   surveyPhase: 'common',
   surveyBranch: null,
-  surveyAnswers: {}
+  surveyAnswers: {},
+  isSubmitting: false
 };
 
 // 주가 히스토리 (라운드마다 갱신)
@@ -1861,8 +1862,20 @@ function buildSubmissionData() {
 }
 
 function submitSurveyResponse() {
+  // 중복 제출 방지
+  if (state.isSubmitting) return;
+  state.isSubmitting = true;
+
   const statusEl = document.getElementById('submit-status');
   const data = buildSubmissionData();
+
+  // 제출 버튼 비활성화
+  const submitBtn = document.querySelector('.bottom-cta .cta-btn:not(.secondary)');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '제출 중...';
+    submitBtn.style.opacity = '0.6';
+  }
 
   if (!GOOGLE_SCRIPT_URL) {
     statusEl.className = 'submit-status success';
@@ -1883,8 +1896,14 @@ function submitSurveyResponse() {
     state.screen = 'thanks';
     render();
   }).catch(err => {
+    state.isSubmitting = false; // 실패 시 재시도 허용
     statusEl.className = 'submit-status error';
     statusEl.textContent = '⚠️ 제출 실패. 다시 시도해주세요.';
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '제출하기';
+      submitBtn.style.opacity = '1';
+    }
     console.error(err);
   });
 }
@@ -1919,7 +1938,8 @@ function restart() {
     startTime: Date.now(),
     surveyPhase: 'common',
     surveyBranch: null,
-    surveyAnswers: {}
+    surveyAnswers: {},
+    isSubmitting: false
   };
   render();
 }
